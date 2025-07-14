@@ -1,18 +1,67 @@
-e3e01000
-e3a02002
-e0843291
-e0c65291
-e0447006
-e0858003
-e1570008
-0a000000
-ea000006
-e0d65291
-ba000000
-ea000003
-e3a01102
-e093a291
-e083aa93
-ea000000
-e3a0a000
-e320f000
+//-----------------------------------------------------
+// TEST 1: Multiplicación y Flags (ACTIVO)
+//-----------------------------------------------------
+E3F01000   // MOV R1, #-1
+E3A02002   // MOV R2, #2
+E0834192   // UMULL {R4,R3},R1,R2
+E0C56192   // SMULL {R6,R5},R1,R2
+E0447006   // SUB R7, R4, R6
+E0858003   // ADD R8, R5, R3
+E1570008   // CMP R7, R8
+0A000002   // BEQ CHECKPOINT1
+E3A0A000   // MOV R10, #0
+EA000005   // B END
+E0D56192   // CHECKPOINT1: SMULLS {R6,R5},R1,R2
+BA000002   // BLT CHECKPOINT2
+E3A0A000   // MOV R10, #0
+EA000002   // B END
+E3A01480   // CHECKPOINT2: MOV R1, #0x80000000
+E093A192   // UMULLS {R10,R3},R1,R2
+0093A193   // UMULEQ {R10,R3},R3,R10
+E3A0A001   // MOV R10, #1
+EAFFFFF9   // B END
+E3A0A000   // ERROR: MOV R10, #0
+EAFFFFFE   // END: B END
+
+/*
+//-----------------------------------------------------
+// TEST 2: Punto Flotante (COMENTADO)
+//-----------------------------------------------------
+E3A00080
+E59F1058
+E59F2058
+E59F3058
+E59F4058
+E59F5058
+E1A06002
+EE1660B3
+E1A07001
+EE1770B4
+E1A08002
+EE1880B5
+EE0770A8
+EE1770B3
+EE0110A6
+EE0220A7
+E2400001
+0A000000
+EAFFFFF5
+EAFFFFFE
+00000000
+40400000
+3DCCCCCD
+BECCCCCD
+3DCCCCCD
+*/
+
+/*
+//-----------------------------------------------------
+// TEST 3: Carga de Constante Larga (COMENTADO)
+//-----------------------------------------------------
+E3A014AB
+E3A02C13
+E3A03041
+E1811002
+E1811003
+EAFFFFFE
+*/
