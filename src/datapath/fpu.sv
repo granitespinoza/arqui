@@ -10,8 +10,8 @@ module fpu (
     real real_result;
 
     always @(*) begin
-        real_a = $bitstoreal(fp_a);
-        real_b = $bitstoreal(fp_b);
+    real_a = $bitstoreal({32'b0, fp_a});
+    real_b = $bitstoreal({32'b0, fp_b});
 
         case (fp_control)
             2'b00: begin
