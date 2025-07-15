@@ -223,8 +223,8 @@ module fpu (
     real real_result;
 
     always @(*) begin
-        real_a = $bitstoreal(fp_a);
-        real_b = $bitstoreal(fp_b);
+        real_a = $bitstoreal({32'b0, fp_a});
+        real_b = $bitstoreal({32'b0, fp_b});
 
         case (fp_control)
             2'b00: begin
@@ -561,6 +561,7 @@ module decode(
     output wire [1:0] ImmSrc,
     output wire [1:0] RegSrc,
     output wire [3:0] ALUControl,
+    output wire Branch,
     output wire WAsel,
     output wire ResultWEn,
     output wire AandBWrite,
@@ -571,7 +572,6 @@ module decode(
     wire [5:0] Funct = Instr[25:20];
     wire [3:0] Rd    = Instr[15:12];
 
-    wire Branch;
     wire ALUOp;
 
     wire is_mul_family = (Op == 2'b00) && (Instr[7:4] == 4'b1001);
@@ -654,6 +654,8 @@ module controller(
     output wire [1:0] ImmSrc,
     output wire [3:0] ALUControl,
     output wire PCS,
+    output wire NextPC,
+    output wire Branch,
     output wire WAsel,
     output wire ResultWEn,
     output wire AandBWrite,
@@ -661,26 +663,30 @@ module controller(
     output wire [1:0] FPUOp
 );
     wire [1:0] FlagW;
-    wire NextPC;
+    wire NextPC_int;
     wire RegW_fsm;
     wire MemW_fsm;
-    wire Branch_fsm;
+    wire Branch_int;
     wire ALUOp_fsm;
 
     decode dec(
         .clk(clk), .reset(reset), .Instr(Instr),
-        .FlagW(FlagW), .PCS(PCS), .NextPC(NextPC), .RegW(RegW_fsm), .MemW(MemW_fsm),
+        .FlagW(FlagW), .PCS(PCS), .NextPC(NextPC_int), .RegW(RegW_fsm), .MemW(MemW_fsm),
         .IRWrite(IRWrite), .AdrSrc(AdrSrc), .ResultSrc(ResultSrc), .ALUSrcA(ALUSrcA),
         .ALUSrcB(ALUSrcB), .ImmSrc(ImmSrc), .RegSrc(RegSrc), .ALUControl(ALUControl),
         .WAsel(WAsel), .ResultWEn(ResultWEn), .AandBWrite(AandBWrite), .RA2Sel(RA2Sel),
-        .FPUOp(FPUOp)
+        .FPUOp(FPUOp),
+        .Branch(Branch_int)
     );
 
     condlogic cl(
         .clk(clk), .reset(reset), .Cond(Instr[31:28]), .ALUFlags(ALUFlags), .FlagW(FlagW),
-        .PCS(PCS), .NextPC(NextPC), .RegW(RegW_fsm), .MemW(MemW_fsm),
+        .PCS(PCS), .NextPC(NextPC_int), .RegW(RegW_fsm), .MemW(MemW_fsm),
         .PCWrite(PCWrite), .RegWrite(RegWrite), .MemWrite(MemWrite)
     );
+
+    assign NextPC = NextPC_int;
+    assign Branch = Branch_int;
 endmodule
 
 
@@ -697,6 +703,8 @@ module datapath(
     output wire [3:0]  ALUFlags,
 
     input  wire        PCWrite,
+    input  wire        NextPC,
+    input  wire        Branch,
     input  wire        RegWrite,
     input  wire        IRWrite,
     input  wire        AdrSrc,
@@ -741,6 +749,17 @@ module datapath(
     flopenr #(32) datareg(clk, reset, 1'b1, ReadData, Data);
 
     adder #(32) pcplus4_adder(PC, 32'd4, PCPlus4);
+
+    wire [31:0] PCBranch;
+    adder #(32) pcbranch_adder(PCPlus4, ExtImm, PCBranch);
+
+    wire [1:0] PCSel;
+    assign PCSel = NextPC ? 2'b00 :
+                    Branch ? 2'b01 :
+                    PCS    ? 2'b10 :
+                               2'b00;
+
+    mux3 #(32) pcmux(PCPlus4, PCBranch, ALUResult, PCSel, PCNext);
 
     mux2 #(4) wa3_mux(Instr[15:12], Instr[19:16], WAsel, WA3);
     
@@ -833,6 +852,7 @@ module arm(
     wire [3:0] ALUFlags;
     
     wire PCWrite, RegWrite, IRWrite, AdrSrc, PCS;
+    wire NextPC, Branch;
     wire [1:0] RegSrc, ALUSrcA, ALUSrcB, ImmSrc, ResultSrc;
     wire [3:0] ALUControl;
     wire WAsel, ResultWEn, AandBWrite, RA2Sel;
@@ -844,13 +864,14 @@ module arm(
         .PCWrite(PCWrite), .MemWrite(MemWrite), .RegWrite(RegWrite), .IRWrite(IRWrite),
         .AdrSrc(AdrSrc), .RegSrc(RegSrc), .ALUSrcA(ALUSrcA), .ALUSrcB(ALUSrcB),
         .ResultSrc(ResultSrc), .ImmSrc(ImmSrc), .ALUControl(ALUControl), .PCS(PCS),
+        .NextPC(NextPC), .Branch(Branch),
         .WAsel(WAsel), .ResultWEn(ResultWEn), .AandBWrite(AandBWrite), .RA2Sel(RA2Sel),
         .FPUOp(FPUOp)
     );
 
     datapath dp(
         .clk(clk), .reset(reset), .Adr(Adr), .WriteData(WriteData), .ReadData(ReadData),
-        .Instr(Instr), .ALUFlags(ALUFlags), .PCWrite(PCWrite), .RegWrite(RegWrite),
+        .Instr(Instr), .ALUFlags(ALUFlags), .PCWrite(PCWrite), .NextPC(NextPC), .Branch(Branch), .RegWrite(RegWrite),
         .IRWrite(IRWrite), .AdrSrc(AdrSrc), .RegSrc(RegSrc), .ALUSrcA(ALUSrcA),
         .ALUSrcB(ALUSrcB), .ResultSrc(ResultSrc), .ImmSrc(ImmSrc), .ALUControl(ALUControl),
         .PCS(PCS), .WAsel(WAsel), .ResultWEn(ResultWEn), .AandBWrite(AandBWrite), .RA2Sel(RA2Sel),
