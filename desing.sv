@@ -754,10 +754,9 @@ module datapath(
     adder #(32) pcbranch_adder(PCPlus4, ExtImm, PCBranch);
 
     wire [1:0] PCSel;
-    assign PCSel = NextPC ? 2'b00 :
-                    Branch ? 2'b01 :
-                    PCS    ? 2'b10 :
-                               2'b00;
+    assign PCSel = Branch ? 2'b01 :
+                    PCS   ? 2'b10 :
+                             2'b00;
 
     mux3 #(32) pcmux(PCPlus4, PCBranch, ALUResult, PCSel, PCNext);
 
