@@ -24,6 +24,15 @@ module arm_tb;
     reset = 0;
   end
 
+  // Ensure instruction memory is loaded correctly regardless of
+  // the simulator's working directory. We explicitly reload the
+  // contents of memfile.dat into the internal RAM of the DUT.
+  initial begin
+    string mem_path = "../memfile.dat";
+    if (!$fileexists(mem_path)) mem_path = "memfile.dat";
+    $readmemh(mem_path, dut.mem_inst.RAM);
+  end
+
   // Dump waves for easier debugging
   initial begin
     $dumpfile("dump.vcd");
