@@ -2,6 +2,8 @@
 
 ```mermaid
 flowchart TD
+    classDef main fill:#FFDDC1,stroke:#333,stroke-width:2px
+    classDef sub fill:#BBE1FA,stroke:#333
     subgraph condlogic
         clk --> cl
         reset --> cl
@@ -19,4 +21,6 @@ flowchart TD
     end
     cl --> condcheck_sub(condcheck)
     ALUFlags --> flags_regs((flopenr regs))
+    class cl main
+    class condcheck_sub,flags_regs sub
 ```

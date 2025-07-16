@@ -2,6 +2,8 @@
 
 ```mermaid
 flowchart TD
+    classDef main fill:#FFDDC1,stroke:#333,stroke-width:2px
+    classDef sub fill:#BBE1FA,stroke:#333
     subgraph datapath
         clk --> dp
         reset --> dp
@@ -38,4 +40,6 @@ flowchart TD
     dp --> adder_sub(adder)
     dp --> mux2_sub(mux2)
     dp --> mux3_sub(mux3)
+    class dp main
+    class flopenr_pc,regfile_sub,alu_sub,fpu_sub,extend_sub,adder_sub,mux2_sub,mux3_sub sub
 ```

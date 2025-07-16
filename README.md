@@ -2,6 +2,8 @@
 ## Module diagrams
 Los diagramas de cada modulo se encuentran en [docs/module_diagrams](docs/module_diagrams/):
 
+Todos usan Mermaid con colores para distinguir cada módulo.
+
 - [adder](docs/module_diagrams/adder.md)
 - [flopr](docs/module_diagrams/flopr.md)
 - [flopenr](docs/module_diagrams/flopenr.md)
