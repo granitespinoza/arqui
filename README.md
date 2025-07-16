@@ -333,3 +333,12 @@ ExtImm = (ExtImm >> rot) | (ExtImm << (32‑rot)); // ROR
 * ARM Architecture Reference Manual, § A5.2.4 “Data‑processing operands”
 * Artículo «ARM immediate value encoding» – blog de E. Clarke (fuente del ejemplo `0x3FC00`).
 
+
+### Version history
+
+- **v1** – Organize SystemVerilog sources hierarchically
+- **v2** – Add sample machine code
+- **v3** – Add basic testbench and fix FPU bit width
+- **v4** – Add monolithic design file
+- **v5** – Add PC update logic
+- **v6** – Create tb.sv file
