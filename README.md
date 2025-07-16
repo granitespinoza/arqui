@@ -21,6 +21,7 @@ Los diagramas de cada modulo se encuentran en [docs/module_diagrams](docs/module
 - [arm](docs/module_diagrams/arm.md)
 - [top](docs/module_diagrams/top.md)
 
+Los archivos de SystemVerilog se encuentran en la carpeta `src/`, con un archivo por módulo y comentarios explicativos.
 
 ### 1. Estructura de alto nivel
 
