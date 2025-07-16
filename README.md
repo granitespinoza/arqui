@@ -1,4 +1,4 @@
-# arqui OBEJTIVO LOGRAR LOS TEST 
+# arqui 
 ## Module diagrams
 Los diagramas de cada modulo se encuentran en [docs/module_diagrams](docs/module_diagrams/):
 
