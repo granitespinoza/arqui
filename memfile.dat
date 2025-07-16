@@ -22,3 +22,37 @@ E3A0A001   // MOV R10, #1
 EAFFFFF9   // B END
 E3A0A000   // ERROR: MOV R10, #0
 EAFFFFFE   // END: B END
+//-----------------------------------------------------
+// TEST 2
+//-----------------------------------------------------
+E3A00080	MOV R0, #128	R0 <- 128 (Contador de iteraciones N)
+E59F1058	LDR R1, [PC, #88]	R1 <- 0.0f (Carga de X)
+E59F2058	LDR R2, [PC, #88]	R2 <- 3.0f (Carga de DX)
+E59F3058	LDR R3, [PC, #88]	R3 <- 0.1f (Carga de DT)
+E59F4058	LDR R4, [PC, #88]	R4 <- -0.4f (Carga de A)
+E59F5058	LDR R5, [PC, #88]	R5 <- 0.1f (Carga de B)
+		Inicio del Bucle FOR
+E1A06002	FOR: MOV R6, R2	R6 <- DX
+EE1660B3	FMUL R6, R6, R3	R6 <- R6 * R3 (dX = DX * DT)
+E1A07001	MOV R7, R1	R7 <- X
+EE1770B4	FMUL R7, R7, R4	R7 <- R7 * R4 (A * X)
+E1A08002	MOV R8, R2	R8 <- DX
+EE1880B5	FMUL R8, R8, R5	R8 <- R8 * R5 (B * DX)
+EE0770A8	FADD R7, R7, R8	R7 <- R7 + R8 (A*X + B*DX)
+EE1770B3	FMUL R7, R7, R3	R7 <- R7 * R3 (dDX = DT * (...))
+EE0110A6	FADD R1, R1, R6	R1 <- R1 + R6 (X += dX)
+EE0220A7	FADD R2, R2, R7	R2 <- R2 + R7 (DX += dDX)
+E2400001	SUB R0, R0, #1	R0 <- R0 - 1 (Decrementa contador)
+0A000000	BEQ END_FOR	Si Z=1, salta al final
+EAFFFFF5	B FOR	Salta de vuelta al inicio del bucle
+EAFFFFFE	END_FOR: B END_FOR	Bucle infinito para detener y verificar
+//-----------------------------------------------------
+// TEST 3
+//-----------------------------------------------------
+E3A014AB	MOV R1, #0xAB000000	R1 <- 0xAB000000	R1 = 0xAB000000
+E3A02C13	MOV R2, #0x00001300	R2 <- 0x00001300	R2 = 0x00001300
+E3A03041	MOV R3, #0x41	R3 <- 0x00000041	R3 = 0x00000041
+E1811002	ORR R1, R1, R2	R1 <- R1 | R2	R1 = 0xAB001300
+E1811003	ORR R1, R1, R3	R1 <- R1 | R3	R1 = 0xAB001341
+EAFFFFFE	B .	Bucle infinito para detener	Fin de la prueba
+
