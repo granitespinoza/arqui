@@ -23,3 +23,12 @@ Los diagramas de cada modulo se encuentran en [docs/module_diagrams](docs/module
 
 
 
+
+### Version history
+
+- **v1** – Organize SystemVerilog sources hierarchically
+- **v2** – Add sample machine code
+- **v3** – Add basic testbench and fix FPU bit width
+- **v4** – Add monolithic design file
+- **v5** – Add PC update logic
+- **v6** – Create tb.sv file
